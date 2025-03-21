@@ -36,15 +36,16 @@ jobs:
       - name: Run Python script
         run: python pipeline.py
       
-      - name: Commit and push changes
+      - name: Commit and push Data folder
+        if: env.CHANGES_DETECTED == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}  # Use your personal access token
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-          git add Data/data.csv Data/transformed_dataset.csv
-          git commit -m "Update dataset: $(date -u)" || echo "No changes to commit"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+          git add Data/
+          git commit -m "Add transformed dataset"
           git push origin main
 
         
