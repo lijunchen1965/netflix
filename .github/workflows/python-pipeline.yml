@@ -35,3 +35,13 @@ jobs:
 
       - name: Run Python script
         run: python pipeline.py
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add Data/data.csv Data/transformed_dataset.csv
+          git commit -m "Update dataset: $(date -u)"
+          git push
+        
+        
