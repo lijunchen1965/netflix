@@ -20,7 +20,12 @@ jobs:
           python-version: 3.11  
 
       - name: Install dependencies  
-        run: pip install kaggle pandas  
+        run: pip install --upgrade kaggle pandas  
+
+      - name: Debug Secrets
+        run: |
+          echo "KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}"
+          echo "KAGGLE_KEY Length: ${#secrets.KAGGLE_KEY}}"
 
       - name: Set up Kaggle API credentials  
         run: |
@@ -28,5 +33,8 @@ jobs:
           echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json  # Secure the file
 
+      - name: Verify Kaggle.json  
+        run: ls -la ~/.kaggle && cat ~/.kaggle/kaggle.json  
+
       - name: Run Python script  
-        run: python pipeline.py  
+        run: python3 pipeline.py  
