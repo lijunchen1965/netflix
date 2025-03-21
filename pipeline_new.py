@@ -6,7 +6,15 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 
 # Define paths and constants
 DATASET_NAME = "octopusteam/full-netflix-dataset"
-SAVE_FOLDER = os.path.join(os.getcwd(), "Data")  # Save folder set to the GitHub repository directory
+
+# Get absolute path of the current script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Ensure the Data folder exists
+SAVE_FOLDER = os.path.join(BASE_DIR, "Data")
+os.makedirs(SAVE_FOLDER, exist_ok=True)
+
+# SAVE_FOLDER = os.path.join(os.getcwd(), "Data")  # Save folder set to the GitHub repository directory
 RAW_DATA_PATH = os.path.join(SAVE_FOLDER, "data.csv")  # Update if your dataset's file name changes
 TRANSFORMED_DATA_PATH = os.path.join(SAVE_FOLDER, "transformed_dataset.csv")
 
