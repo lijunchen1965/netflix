@@ -1,59 +1,68 @@
 name: Run Netflix Data Pipeline
 
-on:  
-  push:  
-    branches: [main]  
+on:
+  push:
+    branches: [main]
   schedule:
     - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
-jobs:  
-  run_pipeline:  
-    runs-on: ubuntu-latest  
+jobs:
+  run_pipeline:
+    runs-on: ubuntu-latest
 
-    steps:  
-      - name: Checkout repository  
-        uses: actions/checkout@v3  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up Python  
-        uses: actions/setup-python@v4  
-        with:  
-          python-version: 3.11  
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-      - name: Install dependencies  
-        run: pip install kaggle pandas  
+      - name: Install dependencies
+        run: |
+          pip install kaggle pandas
 
-      - name: Set up Kaggle API credentials  
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: echo "Kaggle credentials set."
+      - name: Set up Kaggle API credentials
+        run: |
+          mkdir -p ~/.kaggle
+          echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json  # Secure the file
 
-      - name: Run Python script  
-        run: python pipeline.py  
+      - name: Run Python script
+        run: python pipeline.py
 
-      # Ensure pipeline.py modifies data
       - name: List Data Folder Contents
         run: ls -lah Data/
 
-      # Check if Data folder has changes
-      - name: Detect changes in Data folder
+      - name: Force detect changes in Data folder
+        run: |
+          git add -A
+          git status
+
+      - name: Ensure Data folder is tracked
+        run: |
+          git add Data/
+          git commit -m "Ensure Data folder is tracked" || echo "No changes to commit"
+          git push origin main
+
+      - name: Check for changes in Data folder
         id: check_changes
         run: |
-          if git diff --exit-code Data/; then
+          if git diff --quiet Data/; then
             echo "CHANGES_DETECTED=false" >> $GITHUB_ENV
           else
             echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
           fi
 
-      # Commit and push changes if Data folder is updated
-      - name: Commit and push Data folder changes
+      - name: Commit and push Data folder
         if: env.CHANGES_DETECTED == 'true'
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}  # Use your personal access token
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
           git add Data/
           git commit -m "Update transformed dataset: $(date -u)"
-          git push origin main || echo "No changes to push"
+          git push origin main
