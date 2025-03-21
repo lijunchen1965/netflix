@@ -1,40 +1,37 @@
 name: Run Netflix Data Pipeline
 
-on:  
-  push:  
-    branches: [main]  
+on:
+  push:
+    branches: [main]
   schedule:
     - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
-jobs:  
-  run_pipeline:  
-    runs-on: ubuntu-latest  
+jobs:
+  run_pipeline:
+    runs-on: ubuntu-latest
 
-    steps:  
-      - name: Checkout repository  
-        uses: actions/checkout@v3  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up Python  
-        uses: actions/setup-python@v4  
-        with:  
-          python-version: 3.11  
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-      - name: Install dependencies  
-        run: pip install --upgrade kaggle pandas  
+      - name: Install dependencies
+        run: pip install kaggle pandas
 
-      - name: Debug Secrets
-        run: |
-          echo "KAGGLE_USERNAME is set"
-          echo "KAGGLE_KEY is set"
-
-      - name: Set up Kaggle API credentials  
+      - name: Set up Kaggle API credentials
         run: |
           mkdir -p ~/.kaggle
           echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: Verify Kaggle.json  
-        run: ls -la ~/.kaggle && cat ~/.kaggle/kaggle.json  
+      - name: Export Kaggle Secrets as Environment Variables  # 🔥 Fix here!
+        run: |
+          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> $GITHUB_ENV
+          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> $GITHUB_ENV
 
-      - name: Run Python script  
-        run: python3 pipeline.py  
+      - name: Run Python script
+        run: python pipeline.py
