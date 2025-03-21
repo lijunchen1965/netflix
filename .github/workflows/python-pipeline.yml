@@ -31,6 +31,15 @@ jobs:
       - name: Run Python script  
         run: python pipeline.py  
 
+     # ensure pipeline.py actually modifies data 
+      - name: List Data Folder Contents
+        run: ls -lah Data/
+     # force git to detect changes;
+      - name: Force detect changes
+        run: |
+          git add -A
+          git status
+
       # Step 6: Check for changes in Data folder
       - name: Check for changes in Data folder
         id: check_changes
