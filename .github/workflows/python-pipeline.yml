@@ -1,41 +1,47 @@
 name: Run Netflix Data Pipeline
 
-on:
-  push:
-    branches: [main]
+on:  
+  push:  
+    branches: [main]  
   schedule:
     - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
-jobs:
-  run_pipeline:
-    runs-on: ubuntu-latest
+jobs:  
+  run_pipeline:  
+    runs-on: ubuntu-latest  
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v3  
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+      - name: Set up Python  
+        uses: actions/setup-python@v4  
+        with:  
+          python-version: 3.11  
 
-      - name: Install dependencies
-        run: pip install kaggle pandas
+      - name: Install dependencies  
+        run: pip install kaggle pandas  
 
-      - name: Set up Kaggle API credentials
+      - name: Set up Kaggle API credentials  
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json
+          echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json  # Secure the file
 
-      - name: Export Kaggle Secrets as Environment Variables  # 🔥 Fix here!
+      - name: Run Python script  
+        run: python pipeline.py  
+
+      # Step 6: Check for changes in Data folder
+      - name: Check for changes in Data folder
+        id: check_changes
         run: |
-          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> $GITHUB_ENV
-          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> $GITHUB_ENV
+          if git diff --quiet Data/; then
+            echo "CHANGES_DETECTED=false" >> $GITHUB_ENV
+          else
+            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
+          fi
 
-      - name: Run Python script
-        run: python pipeline.py
-      
+      # Step 7: Commit and push Data folder only if there are changes
       - name: Commit and push Data folder
         if: env.CHANGES_DETECTED == 'true'
         env:
@@ -45,7 +51,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
           git add Data/
-          git commit -m "Add transformed dataset"
+          git commit -m "Update transformed dataset: $(date -u)"
           git push origin main
-
-        
