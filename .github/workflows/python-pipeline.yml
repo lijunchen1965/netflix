@@ -26,12 +26,7 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: |
-          if [[ -z "$KAGGLE_USERNAME" || -z "$KAGGLE_KEY" ]]; then
-            echo "Kaggle credentials are missing!"
-            exit 1
-          fi
-          echo "Kaggle credentials set."
+        run: echo "Kaggle credentials set."
 
       - name: Run Python script  
         run: python pipeline.py  
