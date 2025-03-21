@@ -12,13 +12,13 @@ TRANSFORMED_DATA_PATH = os.path.join(SAVE_FOLDER, "transformed_dataset.csv")
 # Step 1: Fetch the Dataset
 def fetch_data():
     print("Fetching dataset...")
+
     # Set up Kaggle API credentials
-   # username = os.getenv('KAGGLE_USERNAME')
-   # key = os.getenv('KAGGLE_KEY')
+    username = os.getenv('KAGGLE_USERNAME')
+    key = os.getenv('KAGGLE_KEY')
 
-   # if not username or not key:
-   #     raise ValueError("Environment variables KAGGLE_USERNAME or KAGGLE_KEY are not set.")
-
+    if not username or not key:
+        raise ValueError("Environment variables KAGGLE_USERNAME or KAGGLE_KEY are not set.")
 
     # Initialize and authenticate Kaggle API (uses kaggle.json automatically)
     api = KaggleApi()
