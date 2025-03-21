@@ -13,28 +13,27 @@ TRANSFORMED_DATA_PATH = os.path.join(SAVE_FOLDER, "transformed_dataset.csv")
 def fetch_data():
     print("Fetching dataset...")
 
+    # Get Kaggle API credentials from environment variables
     username = os.getenv('KAGGLE_USERNAME')
     key = os.getenv('KAGGLE_KEY')
 
     if not username or not key:
         raise ValueError("Environment variables KAGGLE_USERNAME or KAGGLE_KEY are not set.")
 
-    # Set Kaggle API credentials via environment variables
-    os.environ["KAGGLE_USERNAME"] = username
-    os.environ["KAGGLE_KEY"] = key
-
-    # Authenticate API
+    # Initialize the Kaggle API with the credentials
     api = KaggleApi()
-    api.authenticate()
+    api._authenticate_using_credentials(username, key)
 
+    # Ensure the save folder exists
     os.makedirs(SAVE_FOLDER, exist_ok=True)
 
     try:
+        # Download the dataset and unzip it
         api.dataset_download_files(DATASET_NAME, path=SAVE_FOLDER, unzip=True)
         print(f"Dataset downloaded successfully to {SAVE_FOLDER}")
     except Exception as e:
         raise RuntimeError(f"Failed to download dataset: {e}")
-
+    
 # Step 2: Clean the Dataset
 def clean_data():
     print("\nCleaning dataset...")
