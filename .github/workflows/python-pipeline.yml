@@ -37,11 +37,12 @@ jobs:
         run: python pipeline.py
       
       - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
           git add Data/data.csv Data/transformed_dataset.csv
-          git commit -m "Update dataset: $(date -u)"
-          git push
-        
-        
+          git commit -m "Update dataset: $(date -u)" || echo "No changes to commit"
+          git push origin main
