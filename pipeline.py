@@ -19,13 +19,9 @@ def fetch_data():
     if not username or not key:
         raise ValueError("Environment variables KAGGLE_USERNAME or KAGGLE_KEY are not set.")
 
-    os.makedirs(os.path.expanduser("~/.kaggle"), exist_ok=True)
-    kaggle_json_path = os.path.expanduser("~/.kaggle/kaggle.json")
-
-    with open(kaggle_json_path, "w") as f:
-        f.write(f'{{"username":"{username}","key":"{key}"}}')
-
-    os.chmod(kaggle_json_path, 0o600)
+    # Set Kaggle API credentials via environment variables
+    os.environ["KAGGLE_USERNAME"] = username
+    os.environ["KAGGLE_KEY"] = key
 
     # Authenticate API
     api = KaggleApi()
