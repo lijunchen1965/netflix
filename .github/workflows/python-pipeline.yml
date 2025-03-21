@@ -40,6 +40,12 @@ jobs:
           git add -A
           git status
 
+      - name: Ensure Data folder is tracked
+        run: |
+          git add Data/
+          git commit -m "Ensure Data folder is tracked" || echo "No changes to commit"
+          git push origin main    
+
       # Step 6: Check for changes in Data folder
       - name: Check for changes in Data folder
         id: check_changes
@@ -49,6 +55,7 @@ jobs:
           else
             echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
           fi
+     
 
       # Step 7: Commit and push Data folder only if there are changes
       - name: Commit and push Data folder
